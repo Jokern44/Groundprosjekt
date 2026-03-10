@@ -17,13 +17,17 @@ async function fetchAndStore() {
     try {
       const feed = await parser.parseURL(feedUrl);
       for (let item of feed.items) {
-        await supabase.from("articles").upsert({
-          title: item.title,
-          link: item.link,
-          source: feedUrl,
-          published_at: item.pubDate,
-          summary: item.contentSnippet,
-        });
+        // Her legges upsert inn
+        await supabase.from("articles").upsert(
+          {
+            title: item.title,
+            link: item.link,
+            source: feedUrl,
+            published_at: item.pubDate,
+            summary: item.contentSnippet,
+          },
+          { onConflict: ["link"] },
+        ); // <-- dette stopper duplicate link errors
       }
     } catch (err) {
       console.error("Error fetching feed", feedUrl, err);
