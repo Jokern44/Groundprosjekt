@@ -1,0 +1,19 @@
+name: RSS Fetch
+
+on:
+  schedule:
+    - cron: "0 * * * *" # kjør hver time
+
+jobs:
+  fetch:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - uses: actions/setup-node@v3
+        with:
+          node-version: "18"
+      - run: npm install rss-parser @supabase/supabase-js
+      - run: node backend/rss_fetch.js
+        env:
+          SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+          SUPABASE_KEY: ${{ secrets.SUPABASE_KEY }}
