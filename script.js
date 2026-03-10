@@ -2,11 +2,10 @@ const supabaseUrl = "https://uputgeqzixncefxjzdkz.supabase.co";
 const supabaseKey =
   "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InVwdXRnZXF6aXhuY2VmeGp6ZGt6Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzMxNDQwNTYsImV4cCI6MjA4ODcyMDA1Nn0.d_N3g5r7ZbKkQhXFPf3e3LgCOY1ommZSGdILwgGZy7E"; // kun lese-tilgang
 
-const supabase = supabase.createClient(supabaseUrl, supabaseKey);
+const supabaseClient = Supabase.createClient(supabaseUrl, supabaseKey);
 
 async function loadArticles() {
-  console.log("Henter artikler...");
-  const { data: articles, error } = await supabase
+  const { data: articles, error } = await supabaseClient
     .from("articles")
     .select("*")
     .order("published_at", { ascending: false })
@@ -31,7 +30,5 @@ async function loadArticles() {
     container.appendChild(div);
   });
 }
-
-console.log("Supabase client:", supabase);
 
 loadArticles();
