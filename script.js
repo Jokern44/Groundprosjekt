@@ -32,4 +32,6 @@ async function loadArticles() {
   });
 }
 
+console.log("Supabase client:", supabase);
+
 loadArticles();
