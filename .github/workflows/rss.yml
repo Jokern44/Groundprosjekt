@@ -3,6 +3,7 @@ name: RSS Fetch
 on:
   schedule:
     - cron: "0 * * * *" # kjør hver time
+  workflow_dispatch: # mulig å kjøre manuelt
 
 jobs:
   fetch:
