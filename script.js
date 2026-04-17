@@ -3,6 +3,7 @@ import { createClient } from "https://cdn.jsdelivr.net/npm/@supabase/supabase-js
 const supabaseUrl = "https://uputgeqzixncefxjzdkz.supabase.co";
 const supabaseKey =
   "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InVwdXRnZXF6aXhuY2VmeGp6ZGt6Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzMxNDQwNTYsImV4cCI6MjA4ODcyMDA1Nn0.d_N3g5r7ZbKkQhXFPf3e3LgCOY1ommZSGdILwgGZy7E";
+
 const supabaseClient = createClient(supabaseUrl, supabaseKey);
 
 function safeUrl(value) {
@@ -12,6 +13,23 @@ function safeUrl(value) {
   } catch {
     return null;
   }
+}
+
+function pickImageUrl(article) {
+  const candidates = [
+    article.image_url,
+    article.og_image,
+    article.image,
+    article.thumbnail,
+    article.thumbnail_url,
+  ];
+
+  for (const candidate of candidates) {
+    const valid = safeUrl(candidate);
+    if (valid) return valid;
+  }
+
+  return null;
 }
 
 async function loadArticles() {
@@ -40,17 +58,18 @@ async function loadArticles() {
       const card = document.createElement("article");
       card.className = "article";
 
-      const imageUrl =
-        safeUrl(article.image_url) ||
-        safeUrl(article.og_image) ||
-        safeUrl(article.image);
-
+      const imageUrl = pickImageUrl(article);
       if (imageUrl) {
         const img = document.createElement("img");
         img.className = "article-image";
         img.src = imageUrl;
         img.alt = article.title || "Artikkelbilde";
         img.loading = "lazy";
+        img.referrerPolicy = "no-referrer";
+        img.onerror = () => {
+          img.remove();
+          console.warn("Kunne ikke laste bilde:", imageUrl);
+        };
         card.appendChild(img);
       }
 
