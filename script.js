@@ -6,10 +6,11 @@ const supabaseKey =
 
 const supabaseClient = createClient(supabaseUrl, supabaseKey);
 
-function safeUrl(value) {
+function safeUrl(value, base) {
   if (!value) return null;
   try {
-    return new URL(value).toString();
+    const url = base ? new URL(value, base) : new URL(value);
+    return ["http:", "https:"].includes(url.protocol) ? url.toString() : null;
   } catch {
     return null;
   }
@@ -25,7 +26,7 @@ function pickImageUrl(article) {
   ];
 
   for (const candidate of candidates) {
-    const valid = safeUrl(candidate);
+    const valid = safeUrl(candidate, article.link);
     if (valid) return valid;
   }
 
@@ -65,7 +66,6 @@ async function loadArticles() {
         img.src = imageUrl;
         img.alt = article.title || "Artikkelbilde";
         img.loading = "lazy";
-        img.referrerPolicy = "no-referrer";
         img.onerror = () => {
           img.remove();
           console.warn("Kunne ikke laste bilde:", imageUrl);
@@ -75,7 +75,7 @@ async function loadArticles() {
 
       const title = document.createElement("a");
       title.className = "article-title";
-      title.href = safeUrl(article.link) || "#";
+      title.href = safeUrl(article.link, window.location.href) || "#";
       title.target = "_blank";
       title.rel = "noopener noreferrer";
       title.textContent = article.title || "Uten tittel";
